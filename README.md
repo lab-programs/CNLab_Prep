@@ -222,4 +222,82 @@ int main() {
 }
 ```
 
-## Program-04 : Dijikstra's algorithm
+## Program-04 : Dijkstra's algorithm
+
+```c
+#include<stdio.h>
+#define INF 999
+```
+#### Dijkstra's algorithm
+```c
+void dijkstra(int n, int cost[20][20], int src, int dist[]) {
+    int isVisited[20], iNode, min;
+```
+#### Set isVisited to 0 and assign the row of cost matrix to the dist arr
+```c
+    for(int i=1; i<=n; i++) {
+        isVisited[i] = 0;
+        dist[i] = cost[src][i];
+    }
+```
+#### Repeat the code for n-1 times
+```c
+    for(int c=1; c<n; c++) {
+```
+#### Set min to INF
+```c
+        min=INF;
+```
+#### Find the edge with the minimum distance
+```c
+        for(int j=1; j<=n; j++) {
+            if(dist[j] < min && !isVisited[j]) {
+                iNode = j;
+                min = dist[j];
+            }
+        }
+```
+#### Visit the node with the minimum edge
+```c
+        isVisited[iNode] = 1;
+```
+#### For every node, check the sum of distances through intemediate nodes with every non-visited nodes. If it is shorted, assign it to dist arr
+```c
+        for(int j=1; j<=n; j++) {
+            if(dist[iNode] + cost[iNode][j] < dist[j] && !isVisited[j]) {
+                dist[j] = dist[iNode]+cost[iNode][j];
+            }
+        }
+    }
+}
+```
+#### Main Function
+```c
+int main() {
+    int n, cost[20][20], src, dist[20];
+    
+    printf("Enter the no of nodes: ");
+    scanf("%d", &n);
+    
+    printf("Enter the cost matrix:\n");
+    for(int i=1; i<=n; i++) {
+        for(int j=1; j<=n; j++) {
+            scanf("%d", &cost[i][j]);
+            if(cost[i][j] == 0) {
+                cost[i][j] = INF;
+            }
+        }
+    }
+    
+    printf("Enter the source node: ");
+    scanf("%d", &src);
+    
+    dijkstra(n, cost, src, dist);
+    
+    for(int i=1; i<=n; i++) {
+        if(i != src) {
+            printf("%d -> %d, cost = %d\n", src, i, dist[i]);
+        }
+    }
+}
+```
