@@ -461,3 +461,258 @@ int main() {
 }
 
 ```
+
+# Program-08 : Priority Queue
+
+#### Headers and definitions
+```c
+#include<stdio.h>
+#define MAX 5
+```
+#### Define the Priority Queue, front and back pointers.\
+```c
+int pq[MAX], f=-1, r=-1;
+```
+#### Insert an element into the queue
+```c
+void enqueue() {
+    if(r>=MAX-1) {
+        printf("Overflow\n");
+    }
+    else {
+        int item;
+        printf("Enter the item: ");
+        scanf("%d", &item);
+        printf("%d inserted\n", item);
+        if(f == -1) {
+            f = 0;
+        }
+        r++;
+        for(int i=f; i<r; i++) {
+            if(pq[i] > item) {
+                for(int j=r-1; j>=i; j--) {
+                    pq[j+1] = pq[j];
+                }
+                pq[i]=item;
+                return;
+            }
+        }
+        pq[r]=item;
+    }
+}
+```
+#### Delete an element from the queue
+```c
+void dequeue() {
+    if(f == -1 || r == -1) {
+        f = -1;
+        r = -1;
+        printf("Underflow\n");
+        return;
+    }
+    printf("%d deleted\n", pq[f]);
+    for(int i=f; i<r; i++) {
+        pq[i] = pq[i+1];
+    }
+    r--;
+}
+```
+#### Print the Priority Queue
+```c
+void printqueue() {
+    if(f == -1 || r<0) {
+        printf("Underflow\n");
+    }
+    else {
+        printf("Priority Queue: ");
+        for(int i=f; i<=r; i++) {
+            printf("%d ", pq[i]);
+        }
+        printf("\n");
+    }
+}
+```
+#### Main function for menu based ui
+```c
+int main() {
+    int choice;
+    printf("1. Enqueue  2. Dequeue  3. Display  4. Exit\n\n");
+    do {
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch(choice) {
+            case 1:
+                enqueue();
+                break;
+            case 2:
+                dequeue();
+                break;
+            case 3:
+                printqueue();
+                break;
+            case 4:
+                printf("Terminated...\n");
+                return 0;
+            default:
+                printf("Invalid choice\n");
+        }
+    } while(choice!=4);
+}
+
+```
+
+# Program-09 : Go Back N Sliding window protocol
+#### Simple program, no need for any explaination
+```c
+#include<stdio.h>
+
+int main() {
+    int windowSize, noOfFrames, frames[100];
+    
+    printf("Enter the window size: ");
+    scanf("%d", &windowSize);
+    
+    printf("Enter the no of frames to transmit: ");
+    scanf("%d", &noOfFrames);
+    
+    printf("Enter the frames:\n");
+    for(int i=1; i<=noOfFrames; i++) {
+        scanf("%d", &frames[i]);
+    }
+    
+    printf("The frames will be sent by the sender to the receiver on the following manner(assuming no corruption occurs):\n\n");
+    
+    printf("%d frames are sent at each stage and until they are acknowledged by the receiver, no frames are sent\n\n", windowSize);
+    
+    for(int i=1; i<=noOfFrames; i++) {
+        if(i%windowSize == 0) {
+            printf("%d\n\n", frames[i]);
+            printf("Acknowledgement of the above frame(s) received by the sender\n\n");
+        }
+        else {
+            printf("%d ", frames[i]);
+        }
+    }
+    
+    if(noOfFrames%windowSize != 0) {
+        printf("\n\nAcknowledgement of the above frame(s) received by the sender\n\n");
+    }
+}
+```
+# Program-11 : Secret key
+```c
+#include<stdio.h>
+
+int computePublicKey(int base, int privateKey, int prime) {
+	int publicKey=1;
+	
+	while(privateKey > 0) {
+	
+		if(privateKey % 2 == 1) {
+			publicKey = (publicKey*base) % prime;
+		}
+		
+		base = base*base % prime;
+		
+		privateKey /= 2;
+	}
+	
+	return publicKey;
+}
+
+int computeSecretKey(int base, int publicKey, int prime) {
+	return computePublicKey(base, publicKey, prime);
+}
+
+int main() {
+	int prime, base, privateKeyA, privateKeyB, publicKeyA, publicKeyB, secretKeyA, secretKeyB;
+	
+	printf("Enter the prime: ");
+	scanf("%d", &prime);
+	printf("Enter the base: ");
+	scanf("%d", &base);
+	printf("Enter A's Private Key: ");
+	scanf("%d", &privateKeyA);
+	printf("Enter B's Private Key: ");
+	scanf("%d", &privateKeyB);
+	
+	publicKeyA = computePublicKey(base, privateKeyA, prime);
+	publicKeyB = computePublicKey(base, privateKeyB, prime);
+	
+	secretKeyA = computeSecretKey(publicKeyB, privateKeyA, prime);
+	secretKeyB = computeSecretKey(publicKeyA, privateKeyB, prime);
+	
+	printf("Alice Secret key is = %d\nBob's Secret Key is = %d\n", secretKeyA, secretKeyB);
+	
+	return 0;
+}
+```
+# Program-12 : RSA
+```c
+#include<stdio.h>
+#include<math.h>
+
+int gcd(int a, int b) {
+	if(b == 0) {
+		return a;
+	}
+	return gcd(b, a%b);
+}
+
+int main() {
+	long long prime1, prime2, productOfPrimes, phiOfProductOfPrimes, publicKey, privateKey;
+	
+	printf("Enter the first prime: ");
+	scanf("%lld", &prime1);
+
+	printf("Enter the second prime: ");
+	scanf("%lld", &prime2);
+	
+	productOfPrimes = prime1 * prime2;
+	
+	// phi(p) = p-1 for a prime - Euler's Phi Function
+	phiOfProductOfPrimes = (prime1 - 1) * (prime2 - 1);
+	
+	publicKey = 2;
+	
+	while(publicKey < phiOfProductOfPrimes) {
+		if(gcd(publicKey, phiOfProductOfPrimes) == 1) {
+			break;
+		}
+		else {
+			publicKey++;
+		}
+	}
+	
+	for(int i=2; i<=productOfPrimes; i++) {
+		long long expression = (publicKey*i-1) % phiOfProductOfPrimes;
+		if(expression == 0) {
+			privateKey = i;
+			break;
+		}
+	}
+	
+	
+	
+	printf("Public Key: %lld\n", publicKey);
+	printf("Private Key: %lld\n", privateKey);
+	
+	long long message;
+	printf("Enter message: ");
+	scanf("%lld", &message);
+	
+	long long encryptedMessage = powl(message, publicKey);
+	encryptedMessage = encryptedMessage % productOfPrimes;
+	
+	long long decryptedMessage = powl(encryptedMessage, privateKey);
+	decryptedMessage = decryptedMessage % productOfPrimes;
+	
+	printf("Original Message : %lld\n", message);
+	printf("Encrypted Message: %lld\n", encryptedMessage);
+	printf("Decrypted Message: %lld\n", decryptedMessage);
+	
+	
+	return 0;
+}
+```
