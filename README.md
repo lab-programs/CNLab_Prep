@@ -301,3 +301,163 @@ int main() {
     }
 }
 ```
+# Program-06 : Checksum
+
+#### Header files
+```c
+#include<stdio.h>
+#include<string.h>
+```
+
+#### Checksum function
+```c
+int checksum(int flag) {
+    char inputString[100];
+    int buffer[25];
+    int sum=0, hL, temp;
+```
+#### Request for the input one-word string
+```c
+    printf("Enter string: ");
+    scanf("%s", inputString);
+```
+#### Calculate half length of input string
+```c
+    int len = strlen(inputString);
+    if(len%2 == 0) {
+        hL = len/2;
+    }
+    else {
+        hL = (len+1)/2;
+    }
+```
+#### Calculate the 256 shifted sum
+```c
+    for(int i=0; i<hL; i++) {
+        int temp=inputString[i*2];
+        temp=(temp*256)+inputString[1+(i*2)];
+        sum += temp;
+    }
+```
+#### If decode, add the checksum value to the sum
+```c
+    if(flag == 1) {
+        printf("Enter checksum value: ");
+        scanf("%d", &temp);
+        sum += temp;
+    }
+```
+#### Bring the value in the range of 0 to 65535
+```c
+    if(sum%65536 != 0) {
+        sum = sum/65536 + sum%65536;
+    }
+```
+#### Return the inverse of sum (checksum)
+```c
+    return 65535-sum;
+}
+```
+#### Main function
+```c
+int main() {
+    int ch, sum;
+    
+    printf("1. Encode    2. Decode   3. Exit\n");
+    do {
+        printf("\nEnter your choice: ");
+        scanf("%d", &ch);
+        switch(ch) {
+            case 1:
+                sum=checksum(0);
+                printf("Checksum value = %d\n", sum);
+                break;
+            case 2:
+                sum=checksum(1);
+                if(sum == 0) {
+                    printf("The checksum is valid\n");
+                }
+                else {
+                    printf("The data has been tampered with or checksum is invalid\n");
+                }
+                break;
+            case 3:
+                printf("Terminated...\n");
+                return 0;
+            default:
+                printf("Invalid Choice\n");
+        }
+    } while(ch != 3);
+}
+```
+
+# Program-07 : Leaky Bucket Algorithm
+
+#### Header files and min function
+```c
+#include<stdio.h>
+#define MIN(x, y) (x>y)? y: x
+```
+#### Main function
+```c 
+int main() {
+    int bucketSize, outputRate, noOfSeconds, choice, droppedPackets=0, packetsPerSecond[20]={0}, extraPackets=0, excess, second=1;
+```
+#### Take user input
+```c
+    printf("Enter bucket size: ");
+    scanf("%d", &bucketSize);
+    
+    printf("Enter output rate: ");
+    scanf("%d", &outputRate);
+```
+#### Take the packetsPerSecond as input
+```c
+    do {
+        printf("Enter the packet at second %d: ", second);
+        scanf("%d", &packetsPerSecond[second]);
+        
+        printf("Enter 1 to continue, 0 to quit... ");
+        scanf("%d", &choice);
+        
+        second += 1;
+    } while(choice == 1);
+```
+#### Assign noOfSeconds and a Table
+```c
+    noOfSeconds = second;
+    
+    printf(" Second \tReceived\t  Sent  \t Dropped\tRemained\n");
+```
+#### Only if extraPackets != 0 or do it n times
+```c
+    for(int i=1; i<=noOfSeconds || extraPackets; i++) {
+        printf("%d\t\t%d\t\t%d\t\t", i, packetsPerSecond[i], MIN(packetsPerSecond[i]+extraPackets, outputRate));
+```
+#### If there is any excess packets
+```c
+        if((excess = packetsPerSecond[i]+extraPackets-outputRate) > 0) {
+            // Overflow
+	    if(excess > bucketSize) {
+                extraPackets = bucketSize;
+                droppedPackets = excess-bucketSize;
+            }
+	    // Bucket size is enough
+            else {
+                extraPackets = excess;
+                droppedPackets = 0;
+            }
+        }
+```
+#### No excess packets
+```c
+        else {
+            extraPackets = 0;
+            droppedPackets = 0;
+        }
+        
+        printf("%d\t\t%d\n", droppedPackets, extraPackets);
+    }
+}
+
+```
