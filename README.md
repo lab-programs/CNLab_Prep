@@ -401,7 +401,8 @@ int main() {
 #### Main function
 ```c 
 int main() {
-    int bucketSize, outputRate, noOfSeconds, choice, droppedPackets=0, packetsPerSecond[20]={0}, extraPackets=0, excess, second=1;
+    int bucketSize, outputRate, noOfSeconds, choice, droppedPackets=0;
+    int packetsPerSecond[20]={0}, extraPackets=0, excess, second=1;
 ```
 #### Take user input
 ```c
@@ -432,7 +433,8 @@ int main() {
 #### Only if extraPackets != 0 or do it n times
 ```c
     for(int i=1; i<=noOfSeconds || extraPackets; i++) {
-        printf("%d\t\t%d\t\t%d\t\t", i, packetsPerSecond[i], MIN(packetsPerSecond[i]+extraPackets, outputRate));
+        printf("%d\t\t%d\t\t%d\t\t", i, packetsPerSecond[i], 
+	MIN(packetsPerSecond[i]+extraPackets, outputRate));
 ```
 #### If there is any excess packets
 ```c
@@ -581,9 +583,11 @@ int main() {
         scanf("%d", &frames[i]);
     }
     
-    printf("The frames will be sent by the sender to the receiver on the following manner(assuming no corruption occurs):\n\n");
+    printf("The frames will be sent by the sender to the receiver 
+    on the following manner(assuming no corruption occurs):\n\n");
     
-    printf("%d frames are sent at each stage and until they are acknowledged by the receiver, no frames are sent\n\n", windowSize);
+    printf("%d frames are sent at each stage and until they 
+    are acknowledged by the receiver, no frames are sent\n\n", windowSize);
     
     for(int i=1; i<=noOfFrames; i++) {
         if(i%windowSize == 0) {
