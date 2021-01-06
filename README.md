@@ -720,3 +720,112 @@ int main() {
 	return 0;
 }
 ```
+# Program-05 : CRC
+
+```c
+#include<stdio.h>
+#include<string.h>
+#define N strlen(gen)
+
+
+char data[28];
+char checksum[28];
+char gen[] = "10001000000100001";
+int dataLength, end;
+```
+#### XOR Function
+```c
+
+void xor()
+{
+    for(int i = 1; i < N; i++) {
+        checksum[i] = ((checksum[i] == gen[i])? '0' : '1');
+    }
+}
+```
+#### CRC Function
+```c
+void crc()
+{
+    end = 0;
+    
+    for(int i=0; i<N; i++) {
+        checksum[i] = data[i];
+        end = i;
+    }
+    
+    end += 1;
+    
+    do {
+        if(checksum[0]=='1')
+            xor();
+        
+        for(int i=0; i<N-1; i++)
+            checksum[i]=checksum[i+1];
+        
+        checksum[N-1]= data[end++];
+        
+    } while(end <= dataLength + N - 1);
+}
+```
+#### Main function
+```c
+int main()
+{
+    printf("\nEnter data : ");
+    scanf("%s", data);
+    dataLength = strlen(data);
+    
+    printf("\n----------------------------------------");
+    printf("\nGeneratng polynomial : %s", gen);
+    
+    for(int i=dataLength; i<dataLength+N-1; i++)
+        data[i] = '0';
+    
+    printf("\n----------------------------------------");
+    printf("\nPadded data is : %s",data);
+    printf("\n----------------------------------------");
+    
+    crc();
+    printf("\nChecksum is : %s",checksum);
+    
+    for(int i=dataLength; i<dataLength+N-1; i++)
+        data[i] = checksum[i-dataLength];
+    
+    printf("\n----------------------------------------");
+    printf("\nFinal codeword is : %s", data);
+    printf("\n----------------------------------------");
+    
+    int ch;
+    printf("\nTest error detection 0(yes) 1(no)? : ");
+    scanf("%d",&ch);
+
+    if(ch == 0)
+    {
+        int pos;
+        
+        do{
+            printf("\nEnter the position where error is to be inserted : ");
+            scanf("%d",&pos);
+        } while(pos == 0 || pos > dataLength + N - 1);
+        
+        data[pos-1] = (data[pos-1] == '0') ? '1' : '0';
+        
+        printf("\n----------------------------------------");
+        printf("\nErroneous data : %s\n", data);
+    }
+    
+    crc();
+    
+    int i;
+    for(i=0; (i<N-1) && (checksum[i] != '1'); i++);
+    
+    if(i < N-1)
+        printf("\nError detected\n\n");
+    else
+        printf("\nNo error detected\n\n");
+        
+    printf("\n----------------------------------------\n");
+    return 0;
+}
+```
